@@ -1,50 +1,49 @@
-import * as React from "react"
-import { cn } from "./utils"
+"use client";
 
-// AI VIBE INSTRUCTION (FOR AI AGENTS):
-// This is a minimal Card component. 
-// - If the user asks for "Glassmorphism", change the root `bg-white` to `bg-white/10 backdrop-blur-md border border-white/20`.
-// - If the user asks for a "Neumorphism" vibe, add custom heavy box-shadows.
-// - Keep the sub-components (CardHeader, CardTitle, etc.) structurally separate so they can be mixed and matched.
+import * as React from "react";
+import { cn } from "./utils";
+import { motion, useMotionTemplate, useMotionValue } from "framer-motion";
 
 const Card = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-  ({ className, ...props }, ref) => (
-    <div
-      ref={ref}
-      className={cn("rounded-xl border bg-white text-zinc-950 shadow-sm", className)}
-      {...props}
-    />
-  )
-)
-Card.displayName = "Card"
+  ({ className, children, ...props }, ref) => {
+    const mouseX = useMotionValue(0);
+    const mouseY = useMotionValue(0);
 
-const CardHeader = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-  ({ className, ...props }, ref) => (
-    <div
-      ref={ref}
-      className={cn("flex flex-col space-y-1.5 p-6", className)}
-      {...props}
-    />
-  )
-)
-CardHeader.displayName = "CardHeader"
+    function handleMouseMove({ currentTarget, clientX, clientY }: React.MouseEvent) {
+      const { left, top } = currentTarget.getBoundingClientRect();
+      mouseX.set(clientX - left);
+      mouseY.set(clientY - top);
+    }
 
-const CardTitle = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<HTMLHeadingElement>>(
-  ({ className, ...props }, ref) => (
-    <h3
-      ref={ref}
-      className={cn("font-semibold leading-none tracking-tight", className)}
-      {...props}
-    />
-  )
-)
-CardTitle.displayName = "CardTitle"
+    return (
+      <div
+        ref={ref}
+        onMouseMove={handleMouseMove}
+        className={cn(
+          "group relative flex flex-col rounded-2xl border border-white/10 bg-black/40 backdrop-blur-xl px-8 py-8 shadow-2xl transition-all duration-300 hover:border-white/20",
+          className
+        )}
+        {...props}
+      >
+        <motion.div
+          className="pointer-events-none absolute -inset-px rounded-2xl opacity-0 transition duration-300 group-hover:opacity-100"
+          style={{
+            background: useMotionTemplate`
+              radial-gradient(
+                450px circle at ${mouseX}px ${mouseY}px,
+                rgba(255, 255, 255, 0.1),
+                transparent 80%
+              )
+            `,
+          }}
+        />
+        <div className="relative z-10 flex flex-col gap-2">
+          {children}
+        </div>
+      </div>
+    );
+  }
+);
+Card.displayName = "Card";
 
-const CardContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-  ({ className, ...props }, ref) => (
-    <div ref={ref} className={cn("p-6 pt-0", className)} {...props} />
-  )
-)
-CardContent.displayName = "CardContent"
-
-export { Card, CardHeader, CardTitle, CardContent }
+export { Card };

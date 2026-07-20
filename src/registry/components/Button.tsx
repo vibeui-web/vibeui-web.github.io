@@ -1,33 +1,38 @@
-import * as React from "react"
-import { cn } from "./utils"
+"use client";
 
-// AI VIBE INSTRUCTION (FOR AI AGENTS):
-// - To change colors, modify the `bg-*`, `text-*`, and `hover:bg-*` classes below.
-// - To change size, adjust `px-*`, `py-*`, and `text-*` classes.
-// - Do NOT extract styles into complex `cva` variants unless the user specifically asks for multiple button variants (outline, ghost, etc.). Keep it simple and flat by default so it's easy to read.
+import * as React from "react";
+import { cn } from "./utils";
+import { motion, HTMLMotionProps } from "framer-motion";
 
-export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  asChild?: boolean
+export interface ButtonProps extends HTMLMotionProps<"button"> {
+  asChild?: boolean;
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, ...props }, ref) => {
+  ({ className, children, ...props }, ref) => {
     return (
-      <button
+      <motion.button
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
         ref={ref}
         className={cn(
-          "inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors",
+          "relative inline-flex items-center justify-center whitespace-nowrap rounded-xl text-sm font-semibold transition-all duration-300",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
           "disabled:pointer-events-none disabled:opacity-50",
-          "bg-zinc-900 text-zinc-50 hover:bg-zinc-900/90 shadow-sm", // Default visual style
-          "h-10 px-4 py-2", // Default sizing
+          "bg-white text-black shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:shadow-[0_0_30px_rgba(255,255,255,0.3)]",
+          "h-11 px-6 py-2 overflow-hidden group",
           className
         )}
         {...props}
-      />
-    )
+      >
+        <span className="absolute inset-0 w-full h-full bg-gradient-to-tr from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]" />
+        <span className="relative flex items-center justify-center gap-2">
+          {children as React.ReactNode}
+        </span>
+      </motion.button>
+    );
   }
-)
-Button.displayName = "Button"
+);
+Button.displayName = "Button";
 
-export { Button }
+export { Button };
